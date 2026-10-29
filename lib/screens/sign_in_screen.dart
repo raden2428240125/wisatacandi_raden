@@ -1,6 +1,9 @@
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wisata_candi/providers/auth_provider.dart';
+import 'package:wisata_candi/screens/profile_screen.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -24,6 +27,35 @@ class _SignInScreenState extends State<SignInScreen> {
     _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
+  }
+
+  void _signIn() {
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text;
+
+    if (username.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorText = 'Nama pengguna dan kata sandi wajib diisi.';
+      });
+      return;
+    }
+
+    setState(() {
+      _errorText = null;
+    });
+
+    context.read<AuthProvider>().signIn(username);
+
+    if (Navigator.canPop(context)) {
+      Navigator.pop(context);
+    } else {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ProfileScreen(),
+        ),
+      );
+    }
   }
 
   @override
@@ -72,25 +104,7 @@ class _SignInScreenState extends State<SignInScreen> {
                   ),
                   const SizedBox(height: 20),
                   ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        if (_usernameController.text.isEmpty ||
-                            _passwordController.text.isEmpty) {
-                          _errorText =
-                              'Nama pengguna dan kata sandi wajib diisi.';
-                        } else {
-                          _errorText = null;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content: Text(
-                                'Form berhasil diisi. '
-                                'Autentikasi belum diterapkan.',
-                              ),
-                            ),
-                          );
-                        }
-                      });
-                    },
+                    onPressed: _signIn,
                     child: const Text('Sign In'),
                   ),
                   const SizedBox(height: 10),

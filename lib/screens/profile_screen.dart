@@ -1,80 +1,58 @@
-import 'package:flutter/material.dart';
 
-class ProfileScreen extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:wisata_candi/providers/auth_provider.dart';
+import 'package:wisata_candi/providers/favorite_provider.dart';
+import 'package:wisata_candi/screens/sign_in_screen.dart';
+
+class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
-  State<ProfileScreen> createState() => _ProfileScreenState();
-}
-
-class _ProfileScreenState extends State<ProfileScreen> {
-  // TODO: 1. Deklarasikan variabel yang dibutuhkan
-  bool isSignedIn = true; // Set true untuk demo/testing tampilan terisi
-  String fullName = 'Muhammad Rachmadi'; //
-  String userName = 'rachmadi'; //
-  int favoriteCandiCount = 0; //
-
-  // TODO: 5. Implementasi fungsi signIn
-  void signIn() {
-    setState(() {
-      isSignedIn = !isSignedIn; //
-    });
-  }
-
-  // TODO: 6. Implementasi fungsi signOut
-  void signOut() {
-    setState(() {
-      isSignedIn = !isSignedIn; //
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final auth = context.watch<AuthProvider>();
+    final favoriteCount = context.watch<FavoriteProvider>().count;
+
     return Scaffold(
       body: Stack(
         children: [
-          // Latar ungu di bagian atas
           Container(
-            height: 200, //
-            width: double.infinity, //
-            color: Colors.deepPurple, //
+            height: 200,
+            width: double.infinity,
+            color: Colors.deepPurple,
           ),
-          // Isi Layar Utama
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0), //
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Column(
               children: [
-                // TODO: 2. Buat ProfileHeader (foto profil dan ikon kamera)
                 Align(
-                  alignment: Alignment.topCenter, //
+                  alignment: Alignment.topCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(
-                      top: 200 - 50,
-                    ), // 200 tinggi container - 50 radius foto
+                    padding: const EdgeInsets.only(top: 150),
                     child: Stack(
-                      alignment: Alignment.bottomRight, //
+                      alignment: Alignment.bottomRight,
                       children: [
                         Container(
                           decoration: BoxDecoration(
                             border: Border.all(
                               color: Colors.deepPurple,
                               width: 2,
-                            ), //
-                            shape: BoxShape.circle, //
+                            ),
+                            shape: BoxShape.circle,
                           ),
                           child: const CircleAvatar(
-                            radius: 50, //
+                            radius: 50,
                             backgroundImage: AssetImage(
                               'images/placeholder_image.png',
-                            ), //
+                            ),
                           ),
                         ),
-                        if (isSignedIn) //
+                        if (auth.isSignedIn)
                           IconButton(
                             onPressed: () {},
                             icon: Icon(
                               Icons.camera_alt,
-                              color: Colors.deepPurple[50], //
+                              color: Colors.deepPurple[50],
                             ),
                           ),
                       ],
@@ -83,112 +61,102 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
                 const SizedBox(height: 20),
 
-                // TODO: 3. Buat ProfileInfo (info pengguna: Pengguna, Nama, Favorit)
-                // Baris 1: Pengguna
-                Row(
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 3, //
-                      child: const Row(
-                        children: [
-                          Icon(Icons.lock, color: Colors.amber), //
-                          SizedBox(width: 8), //
-                          Text(
-                            'Pengguna', //
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ), //
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        ': ${isSignedIn ? userName : ''}', //
-                        style: const TextStyle(fontSize: 18), //
-                      ),
-                    ),
-                  ],
+                // Username
+                _buildInfoRow(
+                  context,
+                  icon: Icons.lock,
+                  iconColor: Colors.amber,
+                  label: 'Pengguna',
+                  value: auth.isSignedIn ? auth.username : '',
                 ),
-                const SizedBox(height: 4), //
-                Divider(color: Colors.deepPurple[100]), //
-                const SizedBox(height: 4), //
-                // Baris 2: Nama
-                Row(
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 3, //
-                      child: const Row(
-                        children: [
-                          Icon(Icons.person, color: Colors.blue), //
-                          SizedBox(width: 8),
-                          Text(
-                            'Nama', //
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        ': ${isSignedIn ? fullName : ''}', //
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    ),
-                    if (isSignedIn) const Icon(Icons.edit), //
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Divider(color: Colors.deepPurple[100]),
-                const SizedBox(height: 4),
+                const Divider(),
 
-                // Baris 3: Favorit
-                Row(
-                  children: [
-                    SizedBox(
-                      width: MediaQuery.of(context).size.width / 3, //
-                      child: const Row(
-                        children: [
-                          Icon(Icons.favorite, color: Colors.red), //
-                          SizedBox(width: 8),
-                          Text(
-                            'Favorit', //
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: Text(
-                        ': ${favoriteCandiCount > 0 ? favoriteCandiCount : 0}', //
-                        style: const TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ],
+                // Name
+                _buildInfoRow(
+                  context,
+                  icon: Icons.person,
+                  iconColor: Colors.blue,
+                  label: 'Nama',
+                  value: auth.isSignedIn ? auth.username : '',
+                  showEdit: auth.isSignedIn,
                 ),
-                const SizedBox(height: 4),
-                Divider(color: Colors.deepPurple[100]), //
-                const SizedBox(height: 20), //
-                // TODO: 4. Buat ProfileActions (tombol Sign In / Sign Out)
-                isSignedIn
+                const Divider(),
+
+                // Favorite count
+                _buildInfoRow(
+                  context,
+                  icon: Icons.favorite,
+                  iconColor: Colors.red,
+                  label: 'Favorit',
+                  value: '$favoriteCount',
+                ),
+                const Divider(),
+                const SizedBox(height: 20),
+
+                // Sign In / Sign Out
+                auth.isSignedIn
                     ? TextButton(
-                        onPressed: signOut, //
-                        child: const Text('Sign Out'), //
+                        onPressed: () {
+                          context.read<AuthProvider>().signOut();
+                          context.read<FavoriteProvider>().clearAll();
+                        },
+                        child: const Text('Sign Out'),
                       )
                     : TextButton(
-                        onPressed: signIn, //
-                        child: const Text('Sign In'), //
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  const SignInScreen(),
+                            ),
+                          );
+                        },
+                        child: const Text('Sign In'),
                       ),
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(
+    BuildContext context, {
+    required IconData icon,
+    required Color iconColor,
+    required String label,
+    required String value,
+    bool showEdit = false,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          SizedBox(
+            width: MediaQuery.of(context).size.width / 3,
+            child: Row(
+              children: [
+                Icon(icon, color: iconColor),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: Text(
+              ': $value',
+              style: const TextStyle(fontSize: 18),
+            ),
+          ),
+          if (showEdit) const Icon(Icons.edit),
         ],
       ),
     );
